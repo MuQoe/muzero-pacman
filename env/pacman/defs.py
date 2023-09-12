@@ -1,3 +1,5 @@
+MIN_FOOD = 2
+TOTAL_FOOD = 60
 class Directions:
     NORTH = 'North'
     SOUTH = 'South'
