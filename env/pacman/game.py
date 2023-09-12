@@ -4,11 +4,12 @@ class Game:
     """
 
     def __init__(self):
-        self.rules = rules
-        self.startingIndex = starting_index
+        self.rules = None
+        self.startingIndex = 0
         self.gameOver = False
         self.moveHistory = []
         self.numMoves = 0
+        self.board = None
 
     def to_play(self):
         # TODO: rewrite this
@@ -18,3 +19,18 @@ class Game:
         # TODO: rewrite this
         pass
 
+    def step(self, action):
+        # TODO: rewrite this
+        pass
+
+    def get_observation(self):
+        pass
+
+    def is_game_over(self):
+        pass
+
+    def get_result_string(self):
+        pass
+
+    def check_win(self):
+        pass
