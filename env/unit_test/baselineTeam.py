@@ -3,6 +3,8 @@ import random
 from env.pacman import util
 from env.pacman.defs import Directions, Actions
 from env.pacman.game import Game
+from env.pacman.util import nearestPoint
+from env.unit_test import distanceCalculator
 
 MAX_CAPACITY = 3
 
@@ -25,6 +27,10 @@ class TestTeam:
 
     def fit(self, env):
         self.boundary = self.getBoundary(env)
+        self.red = env.isOnRedTeam(self.index)
+        self.distancer = distanceCalculator.Distancer(env.layout)
+        # comment this out to forgo maze distance computation and use manhattan distances
+        self.distancer.getMazeDistances()
 
     def getClosestPos(self, gameState:Game, pos_list):
         min_length = 9999
@@ -81,6 +87,29 @@ class TestTeam:
                     myPQ.push(newNode, heuristic(succState) + cost + succCost)
         return []
 
+    def getAction(self, gameState: Game):
+        action = self.getAction_inner(gameState)
+        return Directions.toAction(action)
+    def getAction_inner(self, gameState):
+        """
+        Calls chooseAction on a grid position, but continues on half positions.
+        If you subclass CaptureAgent, you shouldn't need to override this method.  It
+        takes care of appending the current gameState on to your observation history
+        (so you have a record of the game states of the game) and will call your
+        choose action method if you're in a state (rather than halfway through your last
+        move - this occurs because Pacman agents move half as quickly as ghost agents).
+
+        """
+        self.observationHistory.append(gameState)
+
+        myState = gameState.getAgentState(self.index)
+        myPos = myState.getPosition()
+        if myPos != nearestPoint(myPos):
+            # We're halfway from one position to the next
+            return gameState.getLegalActions(self.index)[0]
+        else:
+            return self.chooseAction(gameState)
+
     def chooseAction(self, gameState: Game):
         """
         Picks among actions randomly.
@@ -103,7 +132,7 @@ class TestTeam:
         path = self.aStarSearch(problem)
 
         if path == []:
-            actions = gameState.legal_actions(self.index)
+            actions = gameState.get_legal_actions(self.index)
             return random.choice(actions)
         else:
             action = path[0]

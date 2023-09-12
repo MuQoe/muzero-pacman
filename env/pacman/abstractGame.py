@@ -140,6 +140,7 @@ class AbstractPacmanGame(gym.Env):
         return self.observation()
 
     def observation(self) -> np.ndarray:
+        return np.zeros((18, 34), dtype=np.int8)
         # """Stack N history of feature planes and one plane represent the color to play.
         #
         # Specifics:
@@ -171,7 +172,7 @@ class AbstractPacmanGame(gym.Env):
         # stacked_obs = np.concatenate([features, color_to_play], axis=0)
         #
         # return stacked_obs
-        pass
+        # pass
 
     @property
     def opponent_team(self) -> int:

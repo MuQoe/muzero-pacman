@@ -43,7 +43,7 @@ class Game(AbstractPacmanGame):
     def getAgentState(self, index):
         return self.agentStates[index]
 
-    def legal_actions(self, agentIndex):
+    def get_legal_actions(self, agentIndex):
         """
         Returns a list of legal actions (which are both possible & allowed)
         """
@@ -56,7 +56,7 @@ class Game(AbstractPacmanGame):
         """
             Edits the state to reflect the results of the action.
             """
-        legal = self.legal_actions(self.to_play)
+        legal = self.get_legal_actions(self.to_play)
         if action not in legal:
             raise Exception("Illegal action " + str(action))
 
