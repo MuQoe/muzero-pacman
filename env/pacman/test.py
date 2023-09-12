@@ -25,7 +25,7 @@ blue_one.fit(env)
 red_two.fit(env)
 blue_two.fit(env)
 players = [red_one, blue_one, red_two, blue_two]
-player_index = 0
+player_index = 1
 
 captureGraphicsDisplay.FRAME_TIME = 0
 display = captureGraphicsDisplay.PacmanGraphics('./baselineTeam.py',"Red",'./baselineTeam.py',
