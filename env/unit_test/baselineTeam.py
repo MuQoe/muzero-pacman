@@ -9,7 +9,7 @@ from env.unit_test import distanceCalculator
 MAX_CAPACITY = 3
 
 
-class TestTeam:
+class TestTeamDummy:
     def __init__(self, index):
         self.carrying = 0
         self.current_target = None
@@ -314,3 +314,25 @@ class PositionSearchProblem:
     def _manhattanDistance(self, pos):
         return util.manhattanDistance(pos, self.goal_pos)
 
+
+class Agent1(TestTeamDummy):
+    pass
+
+
+class Agent2(TestTeamDummy):
+
+    # this agent will reach to the furthest goal
+    def getClosestPos(self, gameState, pos_list):
+        return self.getFurthestPos(gameState, pos_list)
+
+    def getFurthestPos(self, gameState, pos_list):
+        max_length = -1
+        max_pos = None
+        my_local_state = gameState.getAgentState(self.index)
+        my_pos = my_local_state.getPosition()
+        for pos in pos_list:
+            temp_length = self.getMazeDistance(my_pos, pos)
+            if temp_length > max_length:
+                max_length = temp_length
+                max_pos = pos
+        return max_pos

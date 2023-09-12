@@ -728,3 +728,9 @@ def decrementTimer(state):
     if timer == 1:
         state.configuration.pos = nearestPoint(state.configuration.pos)
     state.scaredTimer = max(0, timer - 1)
+
+def reconstituteGrid(bitRep):
+    if type(bitRep) is not type((1,2)):
+        return bitRep
+    width, height = bitRep[:2]
+    return Grid(width, height, bitRepresentation= bitRep[2:])

@@ -1,4 +1,5 @@
 import collections
+import copy
 import random
 from collections import deque
 
@@ -6,6 +7,7 @@ import gymnasium as gym
 import numpy as np
 from gymnasium.spaces import Box, Discrete
 
+from defaultlayout import test_layout
 from env.pacman import mazeGenerator, layout
 from env.pacman.defs import Directions, AgentState, Configuration
 from env.pacman.util import halfList, nearestPoint, halfGrid
@@ -23,9 +25,9 @@ class AbstractPacmanGame(gym.Env):
         self.num_stack = num_stack
         self.world = np.zeros((18, 34), dtype=np.int8)
 
-        seed = random.randint(0, 99999999)
-        temp = mazeGenerator.generateMaze(seed)
-        world = layout.Layout(temp.split('\n'))
+        # seed = random.randint(0, 99999999)
+        # temp = mazeGenerator.generateMaze(seed)
+        world = layout.Layout(test_layout.split('\n'))
         self.walls = world.walls
         self.food = world.food
         self.capsules = world.capsules
@@ -81,11 +83,13 @@ class AbstractPacmanGame(gym.Env):
 
         self.steps = 0
         self.game_end = False
-        self.last_player = None
+        self._agentMoved = None
         self.last_move = None
 
         self.history = []
         self.trace = collections.Counter()
+
+        self.reset()
 
     def reset(self, **kwargs) -> np.ndarray:
         """Reset game to initial state."""
@@ -94,9 +98,9 @@ class AbstractPacmanGame(gym.Env):
         self.world = np.zeros((18, 34), dtype=np.int8)
 
         # pacman definition
-        seed = random.randint(0, 99999999)
-        temp = mazeGenerator.generateMaze(seed)
-        world = layout.Layout(temp.split('\n'))
+        # seed = random.randint(0, 99999999)
+        # temp = mazeGenerator.generateMaze(seed)
+        world = layout.Layout(test_layout.split('\n'))
         self.walls = world.walls
         self.food = world.food
         self.capsules = world.capsules
@@ -132,7 +136,7 @@ class AbstractPacmanGame(gym.Env):
 
         self.steps = 0
         self.winner = None
-        self.last_player = None
+        self._agentMoved = None
         self.last_move = None
 
         del self.history[:]
@@ -174,6 +178,9 @@ class AbstractPacmanGame(gym.Env):
         # return stacked_obs
         # pass
 
+    # implement a copy function that returns a copy of the game
+    def copy(self):
+        return copy.deepcopy(self)
     @property
     def opponent_team(self) -> int:
         if self.to_play == self.red_one or self.to_play == self.red_two:

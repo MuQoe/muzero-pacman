@@ -2,7 +2,8 @@ import random
 
 from env.pacman import layout
 from env.pacman.game import Game
-from env.unit_test.baselineTeam import TestTeam
+from env.unit_test import captureGraphicsDisplay
+from env.unit_test.baselineTeam import Agent1, Agent2
 
 # seed = random.randint(0, 99999999)
 # # layout = 'layouts/random%08dCapture.lay' % seed
@@ -12,12 +13,12 @@ from env.unit_test.baselineTeam import TestTeam
 # temp = mazeGenerator.generateMaze(seed)
 # l = layout.Layout(temp.split('\n'))
 # aaa = 0
-
-env = Game()
-red_one = TestTeam(0)
-blue_one = TestTeam(1)
-red_two = TestTeam(2)
-blue_two = TestTeam(3)
+random.seed('cs188')
+env = Game(start_index=0)
+red_one = Agent1(0)
+blue_one = Agent1(1)
+red_two = Agent2(2)
+blue_two = Agent2(3)
 
 red_one.fit(env)
 blue_one.fit(env)
@@ -25,19 +26,20 @@ red_two.fit(env)
 blue_two.fit(env)
 players = [red_one, blue_one, red_two, blue_two]
 player_index = 0
+
+captureGraphicsDisplay.FRAME_TIME = 0
+display = captureGraphicsDisplay.PacmanGraphics('./baselineTeam.py',"Red",'./baselineTeam.py',
+                                                        "Blue", 1, 0, capture=True)
+display.initialize(env)
 while True:
     player = players[player_index]
-    move = player.getAction(env)
-    _, _, done = env.step(move)
-
+    temp_env = env.copy()
+    move = player.getAction(temp_env)
+    _, _, done = env.step(move, player_index)
+    display.update(env.copy())
     if done:
         print(env.getScore())
         break
-
-
+    print(env)
     # update the player index
     player_index = (player_index + 1) % 4
-
-
-
-

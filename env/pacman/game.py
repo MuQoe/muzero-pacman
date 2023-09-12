@@ -12,21 +12,23 @@ class Game(AbstractPacmanGame):
     The Game manages the control flow, soliciting actions from agents.
     """
 
-    def __init__(self, num_stack: int = 6):
+    def __init__(self, start_index:int = 1, num_stack: int = 6):
         super().__init__(num_stack)
+        self.start_index = start_index
         self.num_stack = num_stack
 
-    def step(self, action):
+    def step(self, action, agent_index=0):
         # TODO: rewrite this
         directions = Directions.toDirection(action)
 
-        self.applyAction(directions)
-        self.checkDeath(self.to_play)
-        decrementTimer(self.getAgentState(self.to_play))
+        self.applyAction(directions, agent_index)
+        self.checkDeath(agent_index)
+        decrementTimer(self.getAgentState(agent_index))
 
-        self.last_player = self.to_play
+        self._agentMoved = agent_index
         self.score += self.scoreChange
-        self.time_left -= - 1
+        if agent_index == self.start_index:
+            self.time_left -= 1
 
         # swap player
         self.to_play = (self.to_play + 1) % 4
@@ -35,7 +37,15 @@ class Game(AbstractPacmanGame):
 
         reward = 1 if self.check_win() else 0
 
+        self.reset_data()
+
         return self.observation(), reward, done
+
+    def reset_data(self):
+        self._foodEaten = None
+        self._foodAdded = None
+        self._capsuleEaten = None
+        self.scoreChange = 0
 
     def check_win(self):
         return self.game_end or self.time_left <= 0
@@ -52,16 +62,16 @@ class Game(AbstractPacmanGame):
         possibleActions = Actions.getPossibleActions(conf, self.walls)
         return possibleActions
 
-    def applyAction(self, action):
+    def applyAction(self, action, agent_index):
         """
             Edits the state to reflect the results of the action.
             """
-        legal = self.get_legal_actions(self.to_play)
+        legal = self.get_legal_actions(agent_index)
         if action not in legal:
             raise Exception("Illegal action " + str(action))
 
         # Update Configuration
-        agentState = self.getAgentState(self.to_play)
+        agentState = self.getAgentState(agent_index)
         speed = 1.0
         # if agentState.isPacman: speed = 0.5
         vector = Actions.directionToVector(action, speed)
@@ -73,7 +83,7 @@ class Game(AbstractPacmanGame):
         nearest = nearestPoint(next)
 
         if next == nearest:
-            isRed = self.isOnRedTeam(self.to_play)
+            isRed = self.isOnRedTeam(agent_index)
             # Change agent type
             agentState.isPacman = [isRed, self.isRed(agentState.configuration)].count(True) == 1
             if agentState.numCarrying > 0 and not agentState.isPacman:
@@ -95,7 +105,7 @@ class Game(AbstractPacmanGame):
                     self.game_end = True
 
         if agentState.isPacman and manhattanDistance(nearest, next) <= 0.9:
-            self.consume(nearest, self.isOnRedTeam(self.to_play))
+            self.consume(nearest, self.isOnRedTeam(agent_index))
 
     def consume(self, position, isRed):
         x, y = position
@@ -284,3 +294,54 @@ class Game(AbstractPacmanGame):
             return False
 
         return True
+
+    def _foodWallStr( self, hasFood, hasWall ):
+        if hasFood:
+            return '.'
+        elif hasWall:
+            return '%'
+        else:
+            return ' '
+
+    def _pacStr( self, dir ):
+        if dir == Directions.NORTH:
+            return 'v'
+        if dir == Directions.SOUTH:
+            return '^'
+        if dir == Directions.WEST:
+            return '>'
+        return '<'
+
+    def _ghostStr( self, dir ):
+        return 'G'
+        if dir == Directions.NORTH:
+            return 'M'
+        if dir == Directions.SOUTH:
+            return 'W'
+        if dir == Directions.WEST:
+            return '3'
+        return 'E'
+    def __str__(self):
+        width, height = self.layout.width, self.layout.height
+        map = Grid(width, height)
+        if type(self.food) == type((1, 2)):
+            self.food = reconstituteGrid(self.food)
+        for x in range(width):
+            for y in range(height):
+                food, walls = self.food, self.layout.walls
+                map[x][y] = self._foodWallStr(food[x][y], walls[x][y])
+
+        for agentState in self.agentStates:
+            if agentState == None: continue
+            if agentState.configuration == None: continue
+            x, y = [int(i) for i in nearestPoint(agentState.configuration.pos)]
+            agent_dir = agentState.configuration.direction
+            if agentState.isPacman:
+                map[x][y] = self._pacStr(agent_dir)
+            else:
+                map[x][y] = self._ghostStr(agent_dir)
+
+        for x, y in self.capsules:
+            map[x][y] = 'o'
+
+        return str(map) + ("\nScore: %d\n" % self.score)
