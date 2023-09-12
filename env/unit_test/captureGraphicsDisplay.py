@@ -216,8 +216,8 @@ class PacmanGraphics:
     self.isBlue = isBlue
     self.startGraphics(state)
 
-    # self.drawDistributions(state)
-    self.distributionImages = None  # Initialized lazily
+    self.drawDistributions(state)
+    # self.distributionImages = None  # Initialized lazily
     self.drawStaticObjects(state)
     self.drawAgentObjects(state)
 

@@ -14,7 +14,15 @@ from env.unit_test.baselineTeam import Agent1, Agent2
 # l = layout.Layout(temp.split('\n'))
 # aaa = 0
 random.seed('cs188')
+captureGraphicsDisplay.FRAME_TIME = 0
+display = captureGraphicsDisplay.PacmanGraphics('./baselineTeam.py',"Red",'./baselineTeam.py',
+                                                        "Blue", 1, 0, capture=True)
+import __main__
+__main__.__dict__['_display'] = display
+
+
 env = Game(start_index=0)
+
 red_one = Agent1(0)
 blue_one = Agent1(1)
 red_two = Agent2(2)
@@ -27,9 +35,7 @@ blue_two.fit(env)
 players = [red_one, blue_one, red_two, blue_two]
 player_index = 1
 
-captureGraphicsDisplay.FRAME_TIME = 0
-display = captureGraphicsDisplay.PacmanGraphics('./baselineTeam.py',"Red",'./baselineTeam.py',
-                                                        "Blue", 1, 0, capture=True)
+
 display.initialize(env)
 while True:
     player = players[player_index]
@@ -40,6 +46,8 @@ while True:
     if done:
         print(env.getScore())
         break
-    print(env)
+    if(env.time_left == 462):
+        break
+    # print(env)
     # update the player index
     player_index = (player_index + 1) % 4

@@ -28,8 +28,8 @@ class Game(AbstractPacmanGame):
 
         self._agentMoved = agent_index
         self.score += self.scoreChange
-        if agent_index == self.start_index:
-            self.time_left -= 1
+        # if agent_index == self.start_index:
+        self.time_left -= 1
 
         # swap player
         self.to_play = (self.to_play + 1) % 4
@@ -114,9 +114,7 @@ class Game(AbstractPacmanGame):
         if self.food[x][y]:
 
             teamIndicesFunc = self.getBlueTeamIndices
-            score = -1
             if isRed:
-                score = 1
                 teamIndicesFunc = self.getRedTeamIndices
 
             # go increase the variable for the pacman who ate this
@@ -226,7 +224,7 @@ class Game(AbstractPacmanGame):
         # the score increases if red eats dots, so if we are refunding points,
         # the direction should be -1 if the red agent died, which means he dies
         # on the blue side
-        scoreDirection = (-1) ** (int(isRed) + 1)
+        # scoreDirection = (-1) ** (int(isRed) + 1)
 
         numToDump = agentState.numCarrying
         self.food = self.food.copy()

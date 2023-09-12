@@ -25,12 +25,18 @@ class TestTeamDummy:
 
         self.boundary = None
 
+        self.display = None
+
     def fit(self, env):
         self.boundary = self.getBoundary(env)
         self.red = env.isOnRedTeam(self.index)
         self.distancer = distanceCalculator.Distancer(env.layout)
         # comment this out to forgo maze distance computation and use manhattan distances
         self.distancer.getMazeDistances()
+
+        import __main__
+        if '_display' in dir(__main__):
+            self.display = __main__._display
 
     def getClosestPos(self, gameState:Game, pos_list):
         min_length = 9999
@@ -100,7 +106,7 @@ class TestTeamDummy:
         move - this occurs because Pacman agents move half as quickly as ghost agents).
 
         """
-        self.observationHistory.append(gameState)
+        # self.observationHistory.append(gameState)
 
         myState = gameState.getAgentState(self.index)
         myPos = myState.getPosition()
@@ -114,6 +120,8 @@ class TestTeamDummy:
         """
         Picks among actions randomly.
         """
+        # if(self.index == 1):
+        #     print(self.current_target)
 
         if not self.current_target == None:
             # if agent already have a goal

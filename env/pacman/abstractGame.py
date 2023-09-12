@@ -108,6 +108,10 @@ class AbstractPacmanGame(gym.Env):
         self.layout = world
         numGhosts = 0
         numGhostAgents = 4
+
+        # # TODO: delete this
+        # world.agentPositions[1] =(False, (16,14))
+
         for isPacman, pos in world.agentPositions:
             if not isPacman:
                 if numGhosts == numGhostAgents:
