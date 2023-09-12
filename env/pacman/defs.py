@@ -42,6 +42,18 @@ class Directions:
         else:
             return Directions.STOP
 
+    @staticmethod
+    def toAction(direction):
+        if direction == Directions.NORTH:
+            return 0
+        elif direction == Directions.SOUTH:
+            return 1
+        elif direction == Directions.EAST:
+            return 2
+        elif direction == Directions.WEST:
+            return 3
+        else:
+            return 4
 
 class Actions:
     """

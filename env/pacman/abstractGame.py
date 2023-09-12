@@ -80,7 +80,7 @@ class AbstractPacmanGame(gym.Env):
         self.to_play = self.red_one
 
         self.steps = 0
-        self.isWin = False
+        self.game_end = False
         self.last_player = None
         self.last_move = None
 

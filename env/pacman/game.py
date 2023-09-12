@@ -26,28 +26,24 @@ class Game(AbstractPacmanGame):
 
         self.last_player = self.to_play
         self.score += self.scoreChange
-        self.time_left = self.time_left - 1
+        self.time_left -= - 1
 
         # swap player
         self.to_play = (self.to_play + 1) % 4
 
-    def get_observation(self):
-        # pass
-        pass
+        done = self.check_win()
 
-    def is_game_over(self):
-        pass
+        reward = 1 if self.check_win() else 0
 
-    def get_result_string(self):
-        pass
+        return self.observation(), reward, done
 
     def check_win(self):
-        pass
+        return self.game_end or self.time_left <= 0
 
     def getAgentState(self, index):
         return self.agentStates[index]
 
-    def getLegalActions(self, agentIndex):
+    def legal_actions(self, agentIndex):
         """
         Returns a list of legal actions (which are both possible & allowed)
         """
@@ -60,7 +56,7 @@ class Game(AbstractPacmanGame):
         """
             Edits the state to reflect the results of the action.
             """
-        legal = self.getLegalActions(self.to_play)
+        legal = self.legal_actions(self.to_play)
         if action not in legal:
             raise Exception("Illegal action " + str(action))
 
@@ -96,7 +92,7 @@ class Game(AbstractPacmanGame):
                     else:
                         blueCount += agentState.numReturned
                 if redCount >= (TOTAL_FOOD / 2) - MIN_FOOD or blueCount >= (TOTAL_FOOD / 2) - MIN_FOOD:
-                    self.isWin = True
+                    self.game_end = True
 
         if agentState.isPacman and manhattanDistance(nearest, next) <= 0.9:
             self.consume(nearest, self.isOnRedTeam(self.to_play))
@@ -149,13 +145,15 @@ class Game(AbstractPacmanGame):
         if agentState.isPacman:
             for index in otherTeam:
                 otherAgentState = self.agentStates[index]
-                if otherAgentState.isPacman: continue
+                if otherAgentState.isPacman:
+                    continue
                 ghostPosition = otherAgentState.getPosition()
-                if ghostPosition == None: continue
+                if ghostPosition is None:
+                    continue
                 if manhattanDistance(ghostPosition, agentState.getPosition()) <= COLLISION_TOLERANCE:
                     # award points to the other team for killing Pacmen
                     if otherAgentState.scaredTimer <= 0:
-                        self.dumpFoodFromDeath(agentState, agent_index)
+                        self.dumpFoodFromDeath(agentState)
 
                         score = KILL_POINTS
                         if self.isOnRedTeam(agent_index):
@@ -177,11 +175,12 @@ class Game(AbstractPacmanGame):
                 otherAgentState = self.getAgentState(index)
                 if not otherAgentState.isPacman: continue
                 pacPos = otherAgentState.getPosition()
-                if pacPos == None: continue
+                if pacPos is None:
+                    continue
                 if manhattanDistance(pacPos, agentState.getPosition()) <= COLLISION_TOLERANCE:
                     # award points to the other team for killing Pacmen
                     if agentState.scaredTimer <= 0:
-                        self.dumpFoodFromDeath(otherAgentState, agent_index)
+                        self.dumpFoodFromDeath(otherAgentState)
 
                         score = KILL_POINTS
                         if not self.isOnRedTeam(agent_index):
