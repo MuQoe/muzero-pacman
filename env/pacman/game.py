@@ -18,6 +18,7 @@ class Game(AbstractPacmanGame):
         self.num_stack = num_stack
 
     def step(self, action, agent_index=0):
+        self.reset_data()
         # TODO: rewrite this
         directions = Directions.toDirection(action)
 
@@ -37,14 +38,14 @@ class Game(AbstractPacmanGame):
 
         reward = 1 if self.check_win() else 0
 
-        self.reset_data()
+
 
         return self.observation(), reward, done
 
     def reset_data(self):
-        self._foodEaten = None
+        # self._foodEaten = None
         self._foodAdded = None
-        self._capsuleEaten = None
+        # self._capsuleEaten = None
         self.scoreChange = 0
 
     def check_win(self):
