@@ -13,11 +13,23 @@ class Game(AbstractPacmanGame):
     """
 
     def __init__(self, num_stack: int = 6):
+        super().__init__(num_stack)
         self.num_stack = num_stack
 
     def step(self, action):
         # TODO: rewrite this
         directions = Directions.toDirection(action)
+
+        self.applyAction(directions)
+        self.checkDeath(self.to_play)
+        decrementTimer(self.getAgentState(self.to_play))
+
+        self.last_player = self.to_play
+        self.score += self.scoreChange
+        self.time_left = self.time_left - 1
+
+        # swap player
+        self.to_play = (self.to_play + 1) % 4
 
     def get_observation(self):
         # pass
@@ -35,13 +47,13 @@ class Game(AbstractPacmanGame):
     def getAgentState(self, index):
         return self.agentStates[index]
 
-    def getLegalActions(state, agentIndex):
+    def getLegalActions(self, agentIndex):
         """
         Returns a list of legal actions (which are both possible & allowed)
         """
-        agentState = state.getAgentState(agentIndex)
+        agentState = self.getAgentState(agentIndex)
         conf = agentState.configuration
-        possibleActions = Actions.getPossibleActions(conf, state.walls)
+        possibleActions = Actions.getPossibleActions(conf, self.walls)
         return possibleActions
 
     def applyAction(self, action):
