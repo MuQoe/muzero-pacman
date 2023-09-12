@@ -13,7 +13,7 @@ from env.unit_test.baselineTeam import Agent1, Agent2
 # temp = mazeGenerator.generateMaze(seed)
 # l = layout.Layout(temp.split('\n'))
 # aaa = 0
-random.seed('cs188')
+# random.seed('cs188')
 captureGraphicsDisplay.FRAME_TIME = 0
 display = captureGraphicsDisplay.PacmanGraphics('./baselineTeam.py',"Red",'./baselineTeam.py',
                                                         "Blue", 1, 0, capture=True)
@@ -45,8 +45,6 @@ while True:
     display.update(env.copy())
     if done:
         print(env.getScore())
-        break
-    if(env.time_left == 462):
         break
     # print(env)
     # update the player index

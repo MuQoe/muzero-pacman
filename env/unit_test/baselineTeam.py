@@ -28,8 +28,8 @@ class TestTeamDummy:
         self.display = None
 
     def fit(self, env):
-        self.boundary = self.getBoundary(env)
         self.red = env.isOnRedTeam(self.index)
+
         self.distancer = distanceCalculator.Distancer(env.layout)
         # comment this out to forgo maze distance computation and use manhattan distances
         self.distancer.getMazeDistances()
@@ -37,6 +37,8 @@ class TestTeamDummy:
         import __main__
         if '_display' in dir(__main__):
             self.display = __main__._display
+
+        self.boundary = self.getBoundary(env)
 
     def getClosestPos(self, gameState:Game, pos_list):
         min_length = 9999
@@ -122,6 +124,7 @@ class TestTeamDummy:
         """
         # if(self.index == 1):
         #     print(self.current_target)
+
 
         if not self.current_target == None:
             # if agent already have a goal

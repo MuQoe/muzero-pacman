@@ -48,6 +48,7 @@ class AbstractPacmanGame(gym.Env):
         self.blueTeam = [i for i, p in enumerate(positions) if not self.isRed(p)]
         self.redTeam = [i for i, p in enumerate(positions) if self.isRed(p)]
         self.teams = [self.isRed(p) for p in positions]
+        self.total_food = self.layout.totalFood
 
         self.time_left = 1200
         self.score = 0
@@ -125,6 +126,7 @@ class AbstractPacmanGame(gym.Env):
         self.blueTeam = [i for i, p in enumerate(positions) if not self.isRed(p)]
         self.redTeam = [i for i, p in enumerate(positions) if self.isRed(p)]
         self.teams = [self.isRed(p) for p in positions]
+        self.total_food = self.layout.totalFood
 
         self.score = 0
         self.scoreChange = 0
