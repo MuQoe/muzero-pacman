@@ -101,7 +101,7 @@ class Game(AbstractPacmanGame):
                 teamIndicesFunc = self.getRedTeamIndices
 
             # go increase the variable for the pacman who ate this
-            agents = [self.agentStates[agentIndex] for agentIndex in teamIndicesFunc()]
+            agents = [self.getAgentState(agentIndex) for agentIndex in teamIndicesFunc()]
             for agent in agents:
                 if agent.getPosition() == position:
                     agent.numCarrying += 1
@@ -128,61 +128,148 @@ class Game(AbstractPacmanGame):
             for index in otherTeam:
                 self.agentStates[index].scaredTimer = SCARED_TIME
 
-    def checkDeath(state, agentIndex):
-        agentState = state.data.agentStates[agentIndex]
-        if state.isOnRedTeam(agentIndex):
-            otherTeam = state.getBlueTeamIndices()
+    def checkDeath(self, agent_index):
+        agentState = self.getAgentState(agent_index)
+        if self.isOnRedTeam(agent_index):
+            otherTeam = self.getBlueTeamIndices()
         else:
-            otherTeam = state.getRedTeamIndices()
+            otherTeam = self.getRedTeamIndices()
         if agentState.isPacman:
             for index in otherTeam:
-                otherAgentState = state.data.agentStates[index]
+                otherAgentState = self.agentStates[index]
                 if otherAgentState.isPacman: continue
                 ghostPosition = otherAgentState.getPosition()
                 if ghostPosition == None: continue
                 if manhattanDistance(ghostPosition, agentState.getPosition()) <= COLLISION_TOLERANCE:
                     # award points to the other team for killing Pacmen
                     if otherAgentState.scaredTimer <= 0:
-                        AgentRules.dumpFoodFromDeath(state, agentState, agentIndex)
+                        self.dumpFoodFromDeath(agentState, agent_index)
 
                         score = KILL_POINTS
-                        if state.isOnRedTeam(agentIndex):
+                        if self.isOnRedTeam(agent_index):
                             score = -score
-                        state.data.scoreChange += score
+                        self.scoreChange += score
                         agentState.isPacman = False
                         agentState.configuration = agentState.start
                         agentState.scaredTimer = 0
                     else:
                         score = KILL_POINTS
-                        if state.isOnRedTeam(agentIndex):
+                        if self.isOnRedTeam(agent_index):
                             score = -score
-                        state.data.scoreChange += score
+                        self.scoreChange += score
                         otherAgentState.isPacman = False
                         otherAgentState.configuration = otherAgentState.start
                         otherAgentState.scaredTimer = 0
         else:  # Agent is a ghost
             for index in otherTeam:
-                otherAgentState = state.data.agentStates[index]
+                otherAgentState = self.getAgentState(index)
                 if not otherAgentState.isPacman: continue
                 pacPos = otherAgentState.getPosition()
                 if pacPos == None: continue
                 if manhattanDistance(pacPos, agentState.getPosition()) <= COLLISION_TOLERANCE:
                     # award points to the other team for killing Pacmen
                     if agentState.scaredTimer <= 0:
-                        AgentRules.dumpFoodFromDeath(state, otherAgentState, agentIndex)
+                        self.dumpFoodFromDeath(otherAgentState, agent_index)
 
                         score = KILL_POINTS
-                        if not state.isOnRedTeam(agentIndex):
+                        if not self.isOnRedTeam(agent_index):
                             score = -score
-                        state.data.scoreChange += score
+                        self.scoreChange += score
                         otherAgentState.isPacman = False
                         otherAgentState.configuration = otherAgentState.start
                         otherAgentState.scaredTimer = 0
                     else:
                         score = KILL_POINTS
-                        if state.isOnRedTeam(agentIndex):
+                        if self.isOnRedTeam(agent_index):
                             score = -score
-                        state.data.scoreChange += score
+                        self.scoreChange += score
                         agentState.isPacman = False
                         agentState.configuration = agentState.start
                         agentState.scaredTimer = 0
+
+    def dumpFoodFromDeath(self, agentState):
+        if not agentState.isPacman:
+            raise Exception('something is seriously wrong, this agent isnt a pacman!')
+
+        # ok so agentState is this:
+        if agentState.numCarrying == 0:
+            return
+
+        # first, score changes!
+        # we HACK pack that ugly bug by just determining if its red based on the first position
+        # to die...
+        dummyConfig = Configuration(agentState.getPosition(), 'North')
+        isRed = self.isRed(dummyConfig)
+
+        # the score increases if red eats dots, so if we are refunding points,
+        # the direction should be -1 if the red agent died, which means he dies
+        # on the blue side
+        scoreDirection = (-1) ** (int(isRed) + 1)
+
+        numToDump = agentState.numCarrying
+        self.food = self.food.copy()
+        foodAdded = []
+
+        def genSuccessors(x, y):
+            DX = [-1, 0, 1]
+            DY = [-1, 0, 1]
+            return [(x + dx, y + dy) for dx in DX for dy in DY]
+
+        # BFS graph search
+        positionQueue = [agentState.getPosition()]
+        seen = set()
+        while numToDump > 0:
+            if not len(positionQueue):
+                raise Exception('Exhausted BFS! uh oh')
+            # pop one off, graph check
+            popped = positionQueue.pop(0)
+            if popped in seen:
+                continue
+            seen.add(popped)
+
+            x, y = popped[0], popped[1]
+            x = int(x)
+            y = int(y)
+            if self.allGood(x, y, isRed):
+                self.food[x][y] = True
+                foodAdded.append((x, y))
+                numToDump -= 1
+
+            # generate successors
+            positionQueue = positionQueue + genSuccessors(x, y)
+
+        self._foodAdded = foodAdded
+        # now our agentState is no longer carrying food
+        agentState.numCarrying = 0
+        pass
+
+    def onRightSide(self, x, y, is_red):
+        dummyConfig = Configuration((x, y), 'North')
+        return self.isRed(dummyConfig) == is_red
+
+    def allGood(self, x, y, is_red):
+        width, height = self.layout.width, self.layout.height
+        food, walls = self.food, self.layout.walls
+
+        # bounds check
+        if x >= width or y >= height or x <= 0 or y <= 0:
+            return False
+
+        if walls[x][y]:
+            return False
+        if food[x][y]:
+            return False
+
+        # dots need to be on the side where this agent will be a pacman :P
+        if not self.onRightSide(x, y, is_red):
+            return False
+
+        if (x, y) in self.capsules:
+            return False
+
+        # loop through agents
+        agentPoses = [self.getAgentPosition(i) for i in range(4)]
+        if (x, y) in agentPoses:
+            return False
+
+        return True

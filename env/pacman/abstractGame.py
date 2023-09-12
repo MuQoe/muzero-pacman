@@ -8,7 +8,7 @@ from gymnasium.spaces import Box, Discrete
 
 from env.pacman import mazeGenerator, layout
 from env.pacman.defs import Directions, AgentState, Configuration
-from env.pacman.util import halfList
+from env.pacman.util import halfList, nearestPoint
 
 
 class AbstractPacmanGame(gym.Env):
@@ -206,3 +206,15 @@ class AbstractPacmanGame(gym.Env):
 
     def getBlueCapsules(self):
         return halfList(self.capsules, self.food, red=False)
+
+    def getAgentPosition(self, index):
+        """
+        Returns a location tuple if the agent with the given index is observable;
+        if the agent is unobservable, returns None.
+        """
+        agentState = self.agentStates[index]
+        ret = agentState.getPosition()
+        if ret:
+            return tuple(int(x) for x in ret)
+        return ret
+

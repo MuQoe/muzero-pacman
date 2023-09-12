@@ -1,7 +1,9 @@
 MIN_FOOD = 2
 TOTAL_FOOD = 60
-
+KILL_POINTS = 0
 SCARED_TIME = 40
+COLLISION_TOLERANCE = 0.7
+DUMP_FOOD_ON_DEATH = True
 class Directions:
     NORTH = 'North'
     SOUTH = 'South'

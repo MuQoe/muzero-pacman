@@ -699,20 +699,19 @@ def unmutePrint():
     # sys.stderr = _ORIGINAL_STDERR
 
 
-def nearestPoint(pos):
-    """
-    Finds the nearest grid point to a position (discretizes).
-    """
-    (current_row, current_col) = pos
-
-    grid_row = int(current_row + 0.5)
-    grid_col = int(current_col + 0.5)
-    return grid_row, grid_col
-
 def halfList(l, grid, red):
-  halfway = grid.width // 2
-  newList = []
-  for x,y in l:
-    if red and x <= halfway: newList.append((x,y))
-    elif not red and x > halfway: newList.append((x,y))
-  return newList
+    halfway = grid.width // 2
+    newList = []
+    for x, y in l:
+        if red and x <= halfway:
+            newList.append((x, y))
+        elif not red and x > halfway:
+            newList.append((x, y))
+    return newList
+
+
+def decrementTimer(state):
+    timer = state.scaredTimer
+    if timer == 1:
+        state.configuration.pos = nearestPoint(state.configuration.pos)
+    state.scaredTimer = max(0, timer - 1)
