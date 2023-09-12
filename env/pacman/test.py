@@ -1,4 +1,5 @@
 import random
+import time
 
 from env.pacman import layout
 from env.pacman.game import Game
@@ -14,11 +15,11 @@ from env.unit_test.baselineTeam import Agent1, Agent2
 # l = layout.Layout(temp.split('\n'))
 # aaa = 0
 # random.seed('cs188')
-captureGraphicsDisplay.FRAME_TIME = 0
-display = captureGraphicsDisplay.PacmanGraphics('./baselineTeam.py',"Red",'./baselineTeam.py',
-                                                        "Blue", 1, 0, capture=True)
-import __main__
-__main__.__dict__['_display'] = display
+# captureGraphicsDisplay.FRAME_TIME = 0
+# display = captureGraphicsDisplay.PacmanGraphics('./baselineTeam.py',"Red",'./baselineTeam.py',
+#                                                         "Blue", 1, 0, capture=True)
+# import __main__
+# __main__.__dict__['_display'] = display
 
 
 env = Game(start_index=0)
@@ -35,17 +36,20 @@ blue_two.fit(env)
 players = [red_one, blue_one, red_two, blue_two]
 player_index = 1
 
-
-display.initialize(env)
+start_time = time.time()
+# display.initialize(env)
 while True:
     player = players[player_index]
-    temp_env = env.copy()
-    move = player.getAction(temp_env)
+    # temp_env = env.copy()
+    move = player.getAction(env)
     _, _, done = env.step(move, player_index)
-    display.update(env.copy())
+    # display.update(env.copy())
     if done:
         print(env.getScore())
         break
     # print(env)
     # update the player index
     player_index = (player_index + 1) % 4
+
+end_time = time.time()
+print(f"Time elapsed: {end_time - start_time}")

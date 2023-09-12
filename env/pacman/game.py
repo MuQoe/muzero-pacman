@@ -104,7 +104,7 @@ class Game(AbstractPacmanGame):
                         blueCount += agentState.numReturned
                 if redCount >= (self.total_food / 2) - MIN_FOOD or blueCount >= (self.total_food / 2) - MIN_FOOD:
                     self.game_end = True
-                print('red: ', redCount, 'blue: ', blueCount, self.time_left)
+                # print('red: ', redCount, 'blue: ', blueCount, self.time_left)
 
         if agentState.isPacman and manhattanDistance(nearest, next) <= 0.9:
             self.consume(nearest, self.isOnRedTeam(agent_index))
