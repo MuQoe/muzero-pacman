@@ -19,6 +19,8 @@ import heapq, random
 import io
 from functools import cmp_to_key
 
+from env.pacman.defs import Grid
+
 
 class FixedRandom:
     def __init__(self):
@@ -709,6 +711,17 @@ def halfList(l, grid, red):
             newList.append((x, y))
     return newList
 
+def halfGrid(grid, red):
+  halfway = grid.width // 2
+  halfgrid = Grid(grid.width, grid.height, False)
+  if red:    xrange = range(halfway)
+  else:       xrange = range(halfway, grid.width)
+
+  for y in range(grid.height):
+    for x in xrange:
+      if grid[x][y]: halfgrid[x][y] = True
+
+  return halfgrid
 
 def decrementTimer(state):
     timer = state.scaredTimer

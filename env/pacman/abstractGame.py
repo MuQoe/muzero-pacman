@@ -8,7 +8,7 @@ from gymnasium.spaces import Box, Discrete
 
 from env.pacman import mazeGenerator, layout
 from env.pacman.defs import Directions, AgentState, Configuration
-from env.pacman.util import halfList, nearestPoint
+from env.pacman.util import halfList, nearestPoint, halfGrid
 
 
 class AbstractPacmanGame(gym.Env):
@@ -221,3 +221,35 @@ class AbstractPacmanGame(gym.Env):
             return tuple(int(x) for x in ret)
         return ret
 
+    def getScore(self):
+        """
+        Returns a number corresponding to the current score.
+        """
+        return self.score
+
+    def getRedFood(self):
+        """
+        Returns a matrix of food that corresponds to the food on the red team's side.
+        For the matrix m, m[x][y]=true if there is food in (x,y) that belongs to
+        red (meaning red is protecting it, blue is trying to eat it).
+        """
+        return halfGrid(self.food, red=True)
+
+    def getBlueFood(self):
+        """
+        Returns a matrix of food that corresponds to the food on the blue team's side.
+        For the matrix m, m[x][y]=true if there is food in (x,y) that belongs to
+        blue (meaning blue is protecting it, red is trying to eat it).
+        """
+        return halfGrid(self.food, red=False)
+    def getWalls(self):
+        """
+        Just like getFood but for walls
+        """
+        return self.walls
+
+    def hasWall(self, x, y):
+        """
+        Returns true if (x,y) has a wall, false otherwise.
+        """
+        return self.walls[x][y]
