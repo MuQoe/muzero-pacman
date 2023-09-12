@@ -24,6 +24,7 @@ class Game:
         pass
 
     def get_observation(self):
+        # pass
         pass
 
     def is_game_over(self):
