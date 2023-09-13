@@ -1,6 +1,6 @@
 import random
 import time
-
+import numpy as np
 from env.pacman import layout
 from env.pacman.game import Game
 from env.unit_test import captureGraphicsDisplay
@@ -34,7 +34,7 @@ blue_one.fit(env)
 red_two.fit(env)
 blue_two.fit(env)
 players = [red_one, blue_one, red_two, blue_two]
-player_index = 1
+player_index = 0
 
 start_time = time.time()
 # display.initialize(env)
@@ -42,7 +42,8 @@ while True:
     player = players[player_index]
     # temp_env = env.copy()
     move = player.getAction(env)
-    _, _, done = env.step(move, player_index)
+    obs, _, done = env.step(move, player_index)
+
     # display.update(env.copy())
     if done:
         print(env.getScore())

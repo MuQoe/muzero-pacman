@@ -150,39 +150,7 @@ class AbstractPacmanGame(gym.Env):
         return self.observation()
 
     def observation(self) -> np.ndarray:
-        return np.zeros((18, 34), dtype=np.int8)
-        # """Stack N history of feature planes and one plane represent the color to play.
-        #
-        # Specifics:
-        #     Xt is for current player
-        #     Yt is for opponent player
-        #     C is the color to play, 1 if black to play, 0 if white to play.
-        #
-        #     The stack order is
-        #     [Xt, Yt, Xt-1, Yt-1, Xt-2, Yt-2, ..., C]
-        #
-        # Returns a 3D tensor with the dimension [N, board_size, board_size],
-        #     where N = 2 x num_stack + 1
-        # """
-        # # create an empty array to hold the stacked planes, with shape [2 x num_stack + 1, board_size, board_size]
-        # features = np.zeros((self.num_stack * 2, self.world, self.world), dtype=np.int8)
-        #
-        # deltas = np.array(self.board_deltas)
-        #
-        # # Current player first, then the opponent
-        # features[::2] = deltas == self.to_play
-        # features[1::2] = deltas == self.opponent_team
-        #
-        # # Color to play is a plane with all zeros for blue, ones for red
-        # color_to_play = np.zeros((1, self.world_size, self.world_size), dtype=np.int8)
-        # # if self.to_play == self.red_player:
-        # #     color_to_play += 1
-        #
-        # # Using [C, H, W] channel first for PyTorch
-        # stacked_obs = np.concatenate([features, color_to_play], axis=0)
-        #
-        # return stacked_obs
-        # pass
+        return np.zeros((21, 18, 34), dtype=np.int8)
 
     # implement a copy function that returns a copy of the game
     def copy(self):

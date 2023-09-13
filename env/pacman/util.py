@@ -19,7 +19,7 @@ import heapq, random
 import io
 from functools import cmp_to_key
 
-from env.pacman.defs import Grid
+from env.pacman.defs import Grid, SONAR_NOISE_VALUES
 
 
 class FixedRandom:
@@ -734,3 +734,6 @@ def reconstituteGrid(bitRep):
         return bitRep
     width, height = bitRep[:2]
     return Grid(width, height, bitRepresentation= bitRep[2:])
+
+def noisyDistance(pos1, pos2):
+  return int(manhattanDistance(pos1, pos2) + random.choice(SONAR_NOISE_VALUES))

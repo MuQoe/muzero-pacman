@@ -104,7 +104,7 @@ class Game(AbstractPacmanGame):
                         blueCount += agentState.numReturned
                 if redCount >= (self.total_food / 2) - MIN_FOOD or blueCount >= (self.total_food / 2) - MIN_FOOD:
                     self.game_end = True
-                # print('red: ', redCount, 'blue: ', blueCount, self.time_left)
+                print('red: ', redCount, 'blue: ', blueCount, self.time_left)
 
         if agentState.isPacman and manhattanDistance(nearest, next) <= 0.9:
             self.consume(nearest, self.isOnRedTeam(agent_index))
@@ -295,6 +295,80 @@ class Game(AbstractPacmanGame):
 
         return True
 
+    def observation(self) -> np.ndarray:
+        # 初始化一个21x34x18的全零观测
+        observation = np.zeros((22, 34, 18), dtype=np.uint8)
+
+        # current player
+        current_player = self.to_play
+        current_agent = self.agentStates[current_player]
+        current_pos = current_agent.getPosition()
+        current_team = self.getBlueTeamIndices()
+        other_team = self.getRedTeamIndices()
+        foodlist = self.getBlueFood()
+        capsulelist = self.getBlueCapsules()
+
+        if self.isOnRedTeam(current_player):
+            current_team = self.getRedTeamIndices()
+            other_team = self.getBlueTeamIndices()
+            foodlist = self.getRedFood()
+            capsulelist = self.getRedCapsules()
+        distances = [noisyDistance(current_pos, self.getAgentPosition(i)) for i in range(4)]
+
+        # set the current player's pos with the current player's index
+        for index in current_team:
+            agent_state = self.agentStates[index]
+            if agent_state.isPacman:
+                observation[0, agent_state.configuration.pos[0], agent_state.configuration.pos[1]] = index
+            else:
+                observation[1, agent_state.configuration.pos[0], agent_state.configuration.pos[1]] = index
+                if agent_state.scaredTimer > 0:
+                    observation[8, agent_state.configuration.pos[0], agent_state.configuration.pos[1]] = agent_state.scaredTimer
+
+        for index in other_team:
+            agent_state = self.agentStates[index]
+            distance_to_enemy = manhattanDistance(current_pos, agent_state.configuration.pos)
+            if distance_to_enemy <= SIGHT_RANGE:
+                if agent_state.isPacman:
+                    observation[2, agent_state.configuration.pos[0], agent_state.configuration.pos[1]] = index
+                else:
+                    observation[3, agent_state.configuration.pos[0], agent_state.configuration.pos[1]] = index
+                    if agent_state.scaredTimer > 0:
+                        observation[9, agent_state.configuration.pos[0], agent_state.configuration.pos[1]] = agent_state.scaredTimer
+
+
+        # 食物位置
+        food_x, food_y = zip(*foodlist.asList())
+        observation[5, food_x, food_y] = 1
+
+        # 能量点位置（己方为1，敌方为-1）
+        capsule_x, capsule_y = zip(*capsulelist.asList())
+        observation[6, capsule_x, capsule_y] = 1
+
+        # 墙的位置
+        wall_x, wall_y = zip(*self.walls.asList())
+        observation[7, wall_x, wall_y] = 1
+
+        # 敌方Pacman的大致距离
+        observation[10, :, :] = distances[other_team[0]]
+        observation[11, :, :] = distances[other_team[1]]
+
+        # numCarrying
+        observation[12, :, :] = self.getAgentState(0).numCarrying
+        observation[13, :, :] = self.getAgentState(1).numCarrying
+        observation[14, :, :] = self.getAgentState(2).numCarrying
+        observation[15, :, :] = self.getAgentState(3).numCarrying
+
+
+
+        observation[16, :, :] = self.getAgentState(0).numReturned
+        observation[17, :, :] = self.getAgentState(1).numReturned
+        observation[18, :, :] = self.getAgentState(2).numReturned
+        observation[19, :, :] = self.getAgentState(3).numReturned
+
+        observation[20, :, :] = self.score
+        observation[21, :, :] = self.to_play
+        return observation
     def _foodWallStr( self, hasFood, hasWall ):
         if hasFood:
             return '.'
