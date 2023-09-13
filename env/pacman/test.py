@@ -2,7 +2,7 @@ import random
 import time
 import numpy as np
 from env.pacman import layout
-from env.pacman.game import Game
+from env.pacman.game import PacmanGame
 from env.unit_test import captureGraphicsDisplay
 from env.unit_test.baselineTeam import Agent1, Agent2
 
@@ -22,7 +22,7 @@ from env.unit_test.baselineTeam import Agent1, Agent2
 # __main__.__dict__['_display'] = display
 
 
-env = Game(start_index=0)
+env = PacmanGame(start_index=0)
 
 red_one = Agent1(0)
 blue_one = Agent1(1)

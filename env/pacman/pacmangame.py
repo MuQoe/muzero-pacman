@@ -7,19 +7,17 @@ from env.pacman.defs import *
 from env.pacman.util import *
 
 
-class Game(AbstractPacmanGame):
+class PacmanGame(AbstractPacmanGame):
     """
     The Game manages the control flow, soliciting actions from agents.
     """
 
-    def __init__(self, start_index:int = 1, num_stack: int = 6):
+    def __init__(self, num_stack: int = 6):
         super().__init__(num_stack)
-        self.start_index = start_index
         self.num_stack = num_stack
 
     def step(self, action, agent_index=0):
         self.reset_data()
-        # TODO: rewrite this
         directions = Directions.toDirection(action)
 
         self.applyAction(directions, agent_index)
@@ -28,17 +26,14 @@ class Game(AbstractPacmanGame):
 
         self._agentMoved = agent_index
         self.score += self.scoreChange
-        # if agent_index == self.start_index:
         self.time_left -= 1
 
         # swap player
-        self.to_play = (self.to_play + 1) % 4
+        self.current_player = (self.current_player + 1) % 4
 
         done = self.check_win()
 
         reward = 1 if self.check_win() else 0
-
-
 
         return self.observation(), reward, done
 
@@ -61,14 +56,20 @@ class Game(AbstractPacmanGame):
         agentState = self.getAgentState(agentIndex)
         conf = agentState.configuration
         possibleActions = Actions.getPossibleActions(conf, self.walls)
-        return possibleActions
+
+        # to actions
+        actions = []
+        for action in possibleActions:
+            actions.append(Directions.toAction(action))
+        print('legal actions: ', actions, agentIndex)
+        return actions
 
     def applyAction(self, action, agent_index):
         """
             Edits the state to reflect the results of the action.
             """
         legal = self.get_legal_actions(agent_index)
-        if action not in legal:
+        if Directions.toAction(action) not in legal:
             raise Exception("Illegal action " + str(action))
 
         # Update Configuration
@@ -264,6 +265,9 @@ class Game(AbstractPacmanGame):
         agentState.numCarrying = 0
         pass
 
+    def to_play(self):
+        return self.current_player
+
     def onRightSide(self, x, y, is_red):
         dummyConfig = Configuration((x, y), 'North')
         return self.isRed(dummyConfig) == is_red
@@ -300,7 +304,7 @@ class Game(AbstractPacmanGame):
         observation = np.zeros((22, 34, 18), dtype=np.uint8)
 
         # current player
-        current_player = self.to_play
+        current_player = self.current_player
         current_agent = self.agentStates[current_player]
         current_pos = current_agent.getPosition()
         current_team = self.getBlueTeamIndices()
@@ -323,7 +327,8 @@ class Game(AbstractPacmanGame):
             else:
                 observation[1, agent_state.configuration.pos[0], agent_state.configuration.pos[1]] = index
                 if agent_state.scaredTimer > 0:
-                    observation[8, agent_state.configuration.pos[0], agent_state.configuration.pos[1]] = agent_state.scaredTimer
+                    observation[
+                        8, agent_state.configuration.pos[0], agent_state.configuration.pos[1]] = agent_state.scaredTimer
 
         for index in other_team:
             agent_state = self.agentStates[index]
@@ -334,15 +339,15 @@ class Game(AbstractPacmanGame):
                 else:
                     observation[3, agent_state.configuration.pos[0], agent_state.configuration.pos[1]] = index
                     if agent_state.scaredTimer > 0:
-                        observation[9, agent_state.configuration.pos[0], agent_state.configuration.pos[1]] = agent_state.scaredTimer
-
+                        observation[9, agent_state.configuration.pos[0], agent_state.configuration.pos[
+                            1]] = agent_state.scaredTimer
 
         # 食物位置
         food_x, food_y = zip(*foodlist.asList())
         observation[5, food_x, food_y] = 1
 
         # 能量点位置（己方为1，敌方为-1）
-        capsule_x, capsule_y = zip(*capsulelist.asList())
+        capsule_x, capsule_y = zip(*capsulelist)
         observation[6, capsule_x, capsule_y] = 1
 
         # 墙的位置
@@ -359,17 +364,16 @@ class Game(AbstractPacmanGame):
         observation[14, :, :] = self.getAgentState(2).numCarrying
         observation[15, :, :] = self.getAgentState(3).numCarrying
 
-
-
         observation[16, :, :] = self.getAgentState(0).numReturned
         observation[17, :, :] = self.getAgentState(1).numReturned
         observation[18, :, :] = self.getAgentState(2).numReturned
         observation[19, :, :] = self.getAgentState(3).numReturned
 
         observation[20, :, :] = self.score
-        observation[21, :, :] = self.to_play
+        observation[21, :, :] = self.current_player
         return observation
-    def _foodWallStr( self, hasFood, hasWall ):
+
+    def _foodWallStr(self, hasFood, hasWall):
         if hasFood:
             return '.'
         elif hasWall:
@@ -377,7 +381,7 @@ class Game(AbstractPacmanGame):
         else:
             return ' '
 
-    def _pacStr( self, dir ):
+    def _pacStr(self, dir):
         if dir == Directions.NORTH:
             return 'v'
         if dir == Directions.SOUTH:
@@ -386,7 +390,7 @@ class Game(AbstractPacmanGame):
             return '>'
         return '<'
 
-    def _ghostStr( self, dir ):
+    def _ghostStr(self, dir):
         return 'G'
         if dir == Directions.NORTH:
             return 'M'
@@ -395,6 +399,7 @@ class Game(AbstractPacmanGame):
         if dir == Directions.WEST:
             return '3'
         return 'E'
+
     def __str__(self):
         width, height = self.layout.width, self.layout.height
         map = Grid(width, height)

@@ -78,9 +78,9 @@ class AbstractPacmanGame(gym.Env):
         }
 
         self.action_dim = Directions.len()
-        self.legal_actions = np.ones(self.action_dim, dtype=np.int8).flatten()
+        # self.legal_actions = np.ones(self.action_dim, dtype=np.int8).flatten()
 
-        self.to_play = self.red_one
+        self.current_player = self.red_one
 
         self.steps = 0
         self.game_end = False
@@ -134,16 +134,18 @@ class AbstractPacmanGame(gym.Env):
         self._foodAdded = None
         self._capsuleEaten = None
 
-        self.legal_actions = np.ones(self.action_dim, dtype=np.int8).flatten()
+        # self.legal_actions = np.ones(self.action_dim, dtype=np.int8).flatten()
 
-        self.to_play = self.red_one
+        self.current_player = self.red_one
 
         self.trace = collections.Counter()
 
         self.steps = 0
-        self.winner = None
+        self.game_end = False
         self._agentMoved = None
         self.last_move = None
+
+        self.trace = collections.Counter()
 
         del self.history[:]
 
@@ -157,7 +159,7 @@ class AbstractPacmanGame(gym.Env):
         return copy.deepcopy(self)
     @property
     def opponent_team(self) -> int:
-        if self.to_play == self.red_one or self.to_play == self.red_two:
+        if self.current_player == self.red_one or self.current_player == self.red_two:
             return self.blue_team
         return self.red_team
 

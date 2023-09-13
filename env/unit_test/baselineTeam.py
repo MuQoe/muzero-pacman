@@ -2,7 +2,7 @@ import random
 
 from env.pacman import util
 from env.pacman.defs import Directions, Actions
-from env.pacman.game import Game
+from env.pacman.game import PacmanGame
 from env.pacman.util import nearestPoint
 from env.unit_test import distanceCalculator
 
@@ -40,7 +40,7 @@ class TestTeamDummy:
 
         self.boundary = self.getBoundary(env)
 
-    def getClosestPos(self, gameState:Game, pos_list):
+    def getClosestPos(self, gameState:PacmanGame, pos_list):
         min_length = 9999
         min_pos = None
         my_local_state = gameState.getAgentState(self.index)
@@ -52,7 +52,7 @@ class TestTeamDummy:
                 min_pos = pos
         return min_pos
 
-    def getBoundary(self, gameState: Game):
+    def getBoundary(self, gameState: PacmanGame):
         boundary_location = []
         height = gameState.layout.height
         width = gameState.layout.width
@@ -95,7 +95,7 @@ class TestTeamDummy:
                     myPQ.push(newNode, heuristic(succState) + cost + succCost)
         return []
 
-    def getAction(self, gameState: Game):
+    def getAction(self, gameState: PacmanGame):
         action = self.getAction_inner(gameState)
         return Directions.toAction(action)
     def getAction_inner(self, gameState):
@@ -118,7 +118,7 @@ class TestTeamDummy:
         else:
             return self.chooseAction(gameState)
 
-    def chooseAction(self, gameState: Game):
+    def chooseAction(self, gameState: PacmanGame):
         """
         Picks among actions randomly.
         """
@@ -158,7 +158,7 @@ class TestTeamDummy:
                 self.carrying = 0
             return path[0]
 
-    def getFood(self, gameState: Game):
+    def getFood(self, gameState: PacmanGame):
         """
         Returns the food you're meant to eat. This is in the form of a matrix
         where m[x][y]=true if there is food you can eat (based on your team) in that square.
@@ -168,7 +168,7 @@ class TestTeamDummy:
         else:
             return gameState.getRedFood()
 
-    def getFoodYouAreDefending(self, gameState: Game):
+    def getFoodYouAreDefending(self, gameState: PacmanGame):
         """
         Returns the food you're meant to protect (i.e., that your opponent is
         supposed to eat). This is in the form of a matrix where m[x][y]=true if
@@ -179,19 +179,19 @@ class TestTeamDummy:
         else:
             return gameState.getBlueFood()
 
-    def getCapsules(self, gameState: Game):
+    def getCapsules(self, gameState: PacmanGame):
         if self.red:
             return gameState.getBlueCapsules()
         else:
             return gameState.getRedCapsules()
 
-    def getCapsulesYouAreDefending(self, gameState: Game):
+    def getCapsulesYouAreDefending(self, gameState: PacmanGame):
         if self.red:
             return gameState.getRedCapsules()
         else:
             return gameState.getBlueCapsules()
 
-    def getOpponents(self, gameState: Game):
+    def getOpponents(self, gameState: PacmanGame):
         """
         Returns agent indices of your opponents. This is the list of the numbers
         of the agents (e.g., red might be "1,3,5")
@@ -201,7 +201,7 @@ class TestTeamDummy:
         else:
             return gameState.getRedTeamIndices()
 
-    def getTeam(self, gameState: Game):
+    def getTeam(self, gameState: PacmanGame):
         """
         Returns agent indices of your team. This is the list of the numbers
         of the agents (e.g., red might be the list of 1,3,5)
@@ -211,7 +211,7 @@ class TestTeamDummy:
         else:
             return gameState.getBlueTeamIndices()
 
-    def getScore(self, gameState: Game):
+    def getScore(self, gameState: PacmanGame):
         """
         Returns how much you are beating the other team by in the form of a number
         that is the difference between your score and the opponents score.  This number
@@ -284,7 +284,7 @@ class PositionSearchProblem:
     to a particular point.
     """
 
-    def __init__(self, gameState :Game, goal, agentIndex=0, costFn=lambda x: 1):
+    def __init__(self, gameState :PacmanGame, goal, agentIndex=0, costFn=lambda x: 1):
         self.walls = gameState.getWalls()
         self.costFn = costFn
         x, y = gameState.getAgentState(agentIndex).getPosition()

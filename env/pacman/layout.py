@@ -12,10 +12,13 @@
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
 
-from util import manhattanDistance
-from defs import Grid
+
+
 import os
 import random
+
+from env.pacman.defs import Grid
+from env.pacman.util import manhattanDistance
 
 VISIBILITY_MATRIX_CACHE = {}
 
