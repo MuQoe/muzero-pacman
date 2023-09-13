@@ -3,10 +3,12 @@ KILL_POINTS = 0
 SCARED_TIME = 40
 COLLISION_TOLERANCE = 0.7
 SIGHT_RANGE = 5
-SONAR_NOISE_RANGE = 13 # Must be odd
-SONAR_NOISE_VALUES = [i - (SONAR_NOISE_RANGE - 1)/2 for i in range(SONAR_NOISE_RANGE)]
+SONAR_NOISE_RANGE = 13  # Must be odd
+SONAR_NOISE_VALUES = [i - (SONAR_NOISE_RANGE - 1) / 2 for i in range(SONAR_NOISE_RANGE)]
 
 DUMP_FOOD_ON_DEATH = True
+
+
 class Directions:
     NORTH = 'North'
     SOUTH = 'South'
@@ -57,6 +59,7 @@ class Directions:
             return 3
         else:
             return 4
+
 
 class Actions:
     """
@@ -148,7 +151,6 @@ class Actions:
     getSuccessor = staticmethod(getSuccessor)
 
 
-
 class Grid:
     """
     A 2-dimensional array of objects backed by a list of lists.  Data is accessed
@@ -157,6 +159,7 @@ class Grid:
 
     The __str__ method constructs an output that is oriented like a pacman board.
     """
+
     def __init__(self, width, height, initialValue=False, bitRepresentation=None):
         if initialValue not in [False, True]: raise Exception('Grids can only contain booleans')
         self.CELLS_PER_INT = 30
@@ -206,14 +209,14 @@ class Grid:
         g.data = self.data
         return g
 
-    def count(self, item =True ):
+    def count(self, item=True):
         return sum([x.count(item) for x in self.data])
 
-    def asList(self, key = True):
+    def asList(self, key=True):
         list = []
         for x in range(self.width):
             for y in range(self.height):
-                if self[x][y] == key: list.append( (x,y) )
+                if self[x][y] == key: list.append((x, y))
         return list
 
     def packBits(self):
@@ -263,6 +266,8 @@ class Grid:
             else:
                 bools.append(False)
         return bools
+
+
 class Configuration:
     """
     A Configuration holds the (x,y) coordinate of a character, along with its
@@ -277,13 +282,14 @@ class Configuration:
         self.direction = direction
 
     def getPosition(self):
-        return (self.pos)
+
+        return int(self.pos[0]), int(self.pos[1])
 
     def getDirection(self):
         return self.direction
 
     def isInteger(self):
-        x,y = self.pos
+        x, y = self.pos
         return x == int(x) and y == int(y)
 
     def __eq__(self, other):
@@ -296,7 +302,7 @@ class Configuration:
         return hash(x + 13 * y)
 
     def __str__(self):
-        return "(x,y)="+str(self.pos)+", "+str(self.direction)
+        return "(x,y)=" + str(self.pos) + ", " + str(self.direction)
 
     def generateSuccessor(self, vector):
         """
@@ -306,18 +312,20 @@ class Configuration:
 
         Actions are movement vectors.
         """
-        x, y= self.pos
+        x, y = self.pos
         dx, dy = vector
         direction = Actions.vectorToDirection(vector)
         if direction == Directions.STOP:
-            direction = self.direction # There is no stop direction
-        return Configuration((x + dx, y+dy), direction)
+            direction = self.direction  # There is no stop direction
+        return Configuration((x + dx, y + dy), direction)
+
+
 class AgentState:
     """
     AgentStates hold the state of an agent (configuration, speed, scared, etc).
     """
 
-    def __init__( self, startConfiguration, isPacman ):
+    def __init__(self, startConfiguration, isPacman):
         self.start = startConfiguration
         self.configuration = startConfiguration
         self.isPacman = isPacman
@@ -325,13 +333,13 @@ class AgentState:
         self.numCarrying = 0
         self.numReturned = 0
 
-    def __str__( self ):
+    def __str__(self):
         if self.isPacman:
-            return "Pacman: " + str( self.configuration )
+            return "Pacman: " + str(self.configuration)
         else:
-            return "Ghost: " + str( self.configuration )
+            return "Ghost: " + str(self.configuration)
 
-    def __eq__( self, other ):
+    def __eq__(self, other):
         if other == None:
             return False
         return self.configuration == other.configuration and self.scaredTimer == other.scaredTimer
@@ -339,8 +347,8 @@ class AgentState:
     def __hash__(self):
         return hash(hash(self.configuration) + 13 * hash(self.scaredTimer))
 
-    def copy( self ):
-        state = AgentState( self.start, self.isPacman )
+    def copy(self):
+        state = AgentState(self.start, self.isPacman)
         state.configuration = self.configuration
         state.scaredTimer = self.scaredTimer
         state.numCarrying = self.numCarrying

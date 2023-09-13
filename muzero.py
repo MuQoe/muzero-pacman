@@ -2,6 +2,7 @@ import copy
 import importlib
 import json
 import math
+import os
 import pathlib
 import pickle
 import sys
@@ -93,7 +94,7 @@ class MuZero:
         if 1 < self.num_gpus:
             self.num_gpus = math.floor(self.num_gpus)
 
-        ray.init(num_gpus=total_gpus, ignore_reinit_error=True)
+        ray.init(num_gpus=total_gpus, ignore_reinit_error=True, num_cpus=os.cpu_count())
 
         # Checkpoint and replay buffer used to initialize workers
         self.checkpoint = {
@@ -117,9 +118,15 @@ class MuZero:
         }
         self.replay_buffer = {}
 
-        cpu_actor = CPUActor.remote()
-        cpu_weights = cpu_actor.get_initial_weights.remote(self.config)
-        self.checkpoint["weights"], self.summary = copy.deepcopy(ray.get(cpu_weights))
+        # cpu_actor = CPUActor.remote()
+        # cpu_weights = cpu_actor.get_initial_weights.remote(self.config)
+
+        model = models.MuZeroNetwork(self.config).to('cpu')
+        weigths = model.get_weights()
+        summary = str(model).replace("\n", " \n\n")
+        # return weigths, summary
+
+        self.checkpoint["weights"], self.summary = copy.deepcopy((weigths, summary))
 
         # Workers
         self.self_play_workers = None
@@ -479,14 +486,14 @@ class MuZero:
         dm.close_all()
 
 
-@ray.remote(num_cpus=0, num_gpus=0)
+@ray.remote
 class CPUActor:
     # Trick to force DataParallel to stay on CPU to get weights on CPU even if there is a GPU
     def __init__(self):
         pass
 
     def get_initial_weights(self, config):
-        model = models.MuZeroNetwork(config)
+        model = models.MuZeroNetwork(config).to('cpu')
         weigths = model.get_weights()
         summary = str(model).replace("\n", " \n\n")
         return weigths, summary

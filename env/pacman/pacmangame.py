@@ -61,16 +61,18 @@ class PacmanGame(AbstractPacmanGame):
         actions = []
         for action in possibleActions:
             actions.append(Directions.toAction(action))
-        print('legal actions: ', actions, agentIndex)
+        # print('legal actions: ', actions, agentIndex)
         return actions
 
     def applyAction(self, action, agent_index):
         """
             Edits the state to reflect the results of the action.
-            """
+        """
         legal = self.get_legal_actions(agent_index)
         if Directions.toAction(action) not in legal:
-            raise Exception("Illegal action " + str(action))
+            agent = self.getAgentState(agent_index)
+            raise Exception("Illegal action " + str(action) + " agent: " + str(agent))
+            # raise Exception("Illegal action " + str(action))
 
         # Update Configuration
         agentState = self.getAgentState(agent_index)
@@ -325,22 +327,25 @@ class PacmanGame(AbstractPacmanGame):
             if agent_state.isPacman:
                 observation[0, agent_state.configuration.pos[0], agent_state.configuration.pos[1]] = index
             else:
-                observation[1, agent_state.configuration.pos[0], agent_state.configuration.pos[1]] = index
-                if agent_state.scaredTimer > 0:
-                    observation[
-                        8, agent_state.configuration.pos[0], agent_state.configuration.pos[1]] = agent_state.scaredTimer
+                agent_pos = agent_state.getPosition()
+                if agent_pos is not None:
+                    observation[1, agent_pos[0], agent_pos[1]] = index
+                    if agent_state.scaredTimer > 0:
+                        observation[
+                            8, agent_pos[0], agent_pos[1]] = agent_state.scaredTimer
 
         for index in other_team:
             agent_state = self.agentStates[index]
-            distance_to_enemy = manhattanDistance(current_pos, agent_state.configuration.pos)
-            if distance_to_enemy <= SIGHT_RANGE:
-                if agent_state.isPacman:
-                    observation[2, agent_state.configuration.pos[0], agent_state.configuration.pos[1]] = index
-                else:
-                    observation[3, agent_state.configuration.pos[0], agent_state.configuration.pos[1]] = index
-                    if agent_state.scaredTimer > 0:
-                        observation[9, agent_state.configuration.pos[0], agent_state.configuration.pos[
-                            1]] = agent_state.scaredTimer
+            agent_pos = agent_state.getPosition()
+            if agent_pos is not None:
+                distance_to_enemy = manhattanDistance(current_pos, agent_state.configuration.pos)
+                if distance_to_enemy <= SIGHT_RANGE:
+                    if agent_state.isPacman:
+                        observation[2, agent_pos[0], agent_pos[1]] = index
+                    else:
+                        observation[3, agent_pos[0], agent_pos[1]] = index
+                        if agent_state.scaredTimer > 0:
+                            observation[9, agent_pos[0], agent_pos[1]] = agent_state.scaredTimer
 
         # 食物位置
         food_x, food_y = zip(*foodlist.asList())

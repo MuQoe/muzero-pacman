@@ -8,7 +8,7 @@ import torch
 import models
 
 
-@ray.remote
+@ray.remote(num_gpus=0.5)
 class Trainer:
     """
     Class which run in a dedicated thread to train a neural network and save it

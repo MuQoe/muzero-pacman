@@ -305,7 +305,7 @@ class ReplayBuffer:
         return target_values, target_rewards, target_policies, actions
 
 
-@ray.remote
+@ray.remote(num_gpus=0)
 class Reanalyse:
     """
     Class which run in a dedicated thread to update the replay buffer with fresh information.

@@ -4,7 +4,7 @@ import ray
 import torch
 
 
-@ray.remote
+@ray.remote(num_gpus=0.1)
 class SharedStorage:
     """
     Class which run in a dedicated thread to store the network weights and some information.
