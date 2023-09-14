@@ -45,7 +45,8 @@ class PacmanGame(AbstractPacmanGame):
         #     reward -= 0.1
         # if self.check_win():
         max_score = self.total_food / 2
-        reward += abs(self.score)
+        reward += -self.score if self.isOnRedTeam(agent_index) else self.score
+
         reward -= float(max_score) / float(1200 - self.time_left)
 
         return self.observation(), reward, done

@@ -597,6 +597,9 @@ def load_model_menu(muzero, game_name):
     print()
     for i in range(len(options)):
         print(f"{i}. {options[i]}")
+    if len(options) == 1:
+        print("Initialize a new model")
+        return
 
     choice = input("Enter a number to choose a model to load: ")
     valid_inputs = [str(i) for i in range(len(options))]

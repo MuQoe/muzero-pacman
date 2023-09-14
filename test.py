@@ -1,8 +1,11 @@
 import importlib
+import os
 
 import models
 import self_play
 import torch
+
+from muzero import load_model_menu, MuZero
 
 # check with the cuda device
 #
@@ -39,10 +42,11 @@ checkpoint = {
 game_module = importlib.import_module("games.pacman")
 Game = game_module.Game
 config = game_module.MuZeroConfig()
-
-model = models.MuZeroNetwork(config)
-weigths = model.get_weights()
-checkpoint["weights"] = weigths
+# muzero = MuZero("pacman")
+# load_model_menu(muzero, "pacman")
+# model = models.MuZeroNetwork(config)
+absolute_path = os.path.abspath("./model.checkpoint")
+checkpoint["weights"] = torch.load(absolute_path)["weights"]
 
 sp = self_play.SelfPlay(checkpoint, Game, config, 90054)
 while True:
