@@ -22,7 +22,7 @@ distancer.getDistance( (1,1), (10,10) )
 """
 
 import sys, time, random
-
+import env.pacman.util as util
 class Distancer:
   def __init__(self, layout, default = 10000):
     """
@@ -116,7 +116,7 @@ def computeDistances(layout):
         closed = {}
         for node in allNodes:
             dist[node] = sys.maxsize
-        import util
+
         queue = util.PriorityQueue()
         queue.push(source, 0)
         dist[source] = 0

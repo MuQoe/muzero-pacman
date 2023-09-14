@@ -44,8 +44,10 @@ class Directions:
             return Directions.EAST
         elif action == 3:
             return Directions.WEST
-        else:
+        elif action == 4:
             return Directions.STOP
+        else:
+            raise Exception("Illegal action in toDirection: " + str(action))
 
     @staticmethod
     def toAction(direction):
@@ -57,8 +59,10 @@ class Directions:
             return 2
         elif direction == Directions.WEST:
             return 3
-        else:
+        elif direction == Directions.STOP:
             return 4
+        else:
+            raise Exception("Illegal direction in toAction: " + str(direction))
 
 
 class Actions:

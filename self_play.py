@@ -6,6 +6,8 @@ import ray
 import torch
 
 import models
+from env.pacman.defs import Directions
+from env.unit_test import captureGraphicsDisplay
 
 
 @ray.remote
@@ -27,6 +29,10 @@ class SelfPlay:
         self.model.set_weights(initial_checkpoint["weights"])
         self.model.to(torch.device("cuda" if self.config.selfplay_on_gpu else "cpu"))
         self.model.eval()
+
+        captureGraphicsDisplay.FRAME_TIME = 0
+        self.display = captureGraphicsDisplay.PacmanGraphics('./baselineTeam.py',"Red",'./baselineTeam.py',
+                                                                "Blue", 1, 0, capture=True)
 
     def continuous_self_play(self, shared_storage, replay_buffer, test_mode=False):
         while ray.get(
@@ -122,8 +128,11 @@ class SelfPlay:
 
         done = False
 
+
+
         if render:
-            self.game.render()
+            self.display.initialize(self.game.env)
+            # self.game.render()
 
         with torch.no_grad():
             while (
@@ -140,7 +149,7 @@ class SelfPlay:
                 )
 
                 # Choose the action
-                if opponent == "self" or muzero_player == self.game.to_play():
+                if opponent == "self" or muzero_player == self.game.to_play() % 2:
                     root, mcts_info = MCTS(self.config).run(
                         self.model,
                         stacked_observations,
@@ -155,12 +164,14 @@ class SelfPlay:
                         or len(game_history.action_history) < temperature_threshold
                         else 0,
                     )
+                    # print(Directions.toDirection(action), len(game_history.action_history))
 
                     if render:
                         print(f'Tree depth: {mcts_info["max_tree_depth"]}')
                         print(
                             f"Root value for player {self.game.to_play()}: {root.value():.2f}"
                         )
+
                 else:
                     action, root = self.select_opponent_action(
                         opponent, stacked_observations
@@ -170,7 +181,8 @@ class SelfPlay:
 
                 if render:
                     print(f"Played action: {self.game.action_to_string(action)}")
-                    self.game.render()
+                    self.display.update(self.game.env.copy())
+                    # self.game.render()
 
                 game_history.store_search_statistics(root, self.config.action_space)
 

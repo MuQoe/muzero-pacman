@@ -80,7 +80,7 @@ class AbstractPacmanGame(gym.Env):
         self.action_dim = Directions.len()
         # self.legal_actions = np.ones(self.action_dim, dtype=np.int8).flatten()
 
-        self.current_player = self.red_one
+        self.current_player = random.randint(0, 1)
 
         self.steps = 0
         self.game_end = False
@@ -98,7 +98,6 @@ class AbstractPacmanGame(gym.Env):
 
         self.world = np.zeros((18, 34), dtype=np.int8)
 
-        # pacman definition
         # seed = random.randint(0, 99999999)
         # temp = mazeGenerator.generateMaze(seed)
         world = layout.Layout(test_layout.split('\n'))
@@ -109,10 +108,6 @@ class AbstractPacmanGame(gym.Env):
         self.layout = world
         numGhosts = 0
         numGhostAgents = 4
-
-        # # TODO: delete this
-        # world.agentPositions[1] =(False, (16,14))
-
         for isPacman, pos in world.agentPositions:
             if not isPacman:
                 if numGhosts == numGhostAgents:
@@ -128,26 +123,45 @@ class AbstractPacmanGame(gym.Env):
         self.teams = [self.isRed(p) for p in positions]
         self.total_food = self.layout.totalFood
 
+        self.time_left = 1200
         self.score = 0
         self.scoreChange = 0
         self._foodEaten = None
         self._foodAdded = None
         self._capsuleEaten = None
 
+        # red and blue player
+        """
+        red -> [0, 2]
+        blue -> [1 ,3]
+        """
+        self.red_one = 0
+        self.red_two = 2
+        self.blue_one = 1
+        self.blue_two = 3
+
+        self.red_team = 0
+        self.blue_team = 1
+
+        self.player_dict = {
+            0: self.red_one,
+            1: self.blue_one,
+            2: self.red_two,
+            3: self.blue_two,
+        }
+
+        self.action_dim = Directions.len()
         # self.legal_actions = np.ones(self.action_dim, dtype=np.int8).flatten()
 
-        self.current_player = self.red_one
-
-        self.trace = collections.Counter()
+        self.current_player = random.randint(0, 1)
 
         self.steps = 0
         self.game_end = False
         self._agentMoved = None
         self.last_move = None
 
+        self.history = []
         self.trace = collections.Counter()
-
-        del self.history[:]
 
         return self.observation()
 

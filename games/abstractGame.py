@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from env.pacman.defs import Directions
+
 
 class AbstractGame(ABC):
     """
@@ -102,4 +104,4 @@ class AbstractGame(ABC):
         Returns:
             String representing the action.
         """
-        return str(action_number)
+        return Directions.toDirection(action_number)

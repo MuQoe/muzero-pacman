@@ -33,7 +33,20 @@ class PacmanGame(AbstractPacmanGame):
 
         done = self.check_win()
 
-        reward = 1 if self.check_win() else 0
+        reward = 0
+        # reward = 1 if self.check_win() else 0
+        # reward = self.scoreChange
+        # # 红色的reward 是负的
+        # if self.isOnRedTeam(agent_index):
+        #     reward = -reward
+        #
+        # # 时间惩罚
+        # if abs(reward) <= 0.1:
+        #     reward -= 0.1
+        # if self.check_win():
+        max_score = self.total_food / 2
+        reward += abs(self.score)
+        reward -= float(max_score) / float(1200 - self.time_left)
 
         return self.observation(), reward, done
 
@@ -107,7 +120,7 @@ class PacmanGame(AbstractPacmanGame):
                         blueCount += agentState.numReturned
                 if redCount >= (self.total_food / 2) - MIN_FOOD or blueCount >= (self.total_food / 2) - MIN_FOOD:
                     self.game_end = True
-                print('red: ', redCount, 'blue: ', blueCount, self.time_left)
+                # print('red: ', redCount, 'blue: ', blueCount, self.time_left)
 
         if agentState.isPacman and manhattanDistance(nearest, next) <= 0.9:
             self.consume(nearest, self.isOnRedTeam(agent_index))
@@ -303,7 +316,7 @@ class PacmanGame(AbstractPacmanGame):
 
     def observation(self) -> np.ndarray:
         # 初始化一个21x34x18的全零观测
-        observation = np.zeros((22, 34, 18), dtype=np.uint8)
+        observation = np.zeros((21, 34, 18), dtype=np.uint8)
 
         # current player
         current_player = self.current_player
@@ -324,15 +337,17 @@ class PacmanGame(AbstractPacmanGame):
         # set the current player's pos with the current player's index
         for index in current_team:
             agent_state = self.agentStates[index]
-            if agent_state.isPacman:
-                observation[0, agent_state.configuration.pos[0], agent_state.configuration.pos[1]] = index
-            else:
-                agent_pos = agent_state.getPosition()
-                if agent_pos is not None:
-                    observation[1, agent_pos[0], agent_pos[1]] = index
-                    if agent_state.scaredTimer > 0:
-                        observation[
-                            8, agent_pos[0], agent_pos[1]] = agent_state.scaredTimer
+            agent_pos = agent_state.getPosition()
+            if agent_pos is not None:
+                if agent_state.isPacman:
+                    observation[0, agent_pos[0], agent_pos[1]] = index
+                else:
+                    agent_pos = agent_state.getPosition()
+                    if agent_pos is not None:
+                        observation[1, agent_pos[0], agent_pos[1]] = index
+                        if agent_state.scaredTimer > 0:
+                            observation[
+                                7, agent_pos[0], agent_pos[1]] = agent_state.scaredTimer
 
         for index in other_team:
             agent_state = self.agentStates[index]
@@ -345,37 +360,40 @@ class PacmanGame(AbstractPacmanGame):
                     else:
                         observation[3, agent_pos[0], agent_pos[1]] = index
                         if agent_state.scaredTimer > 0:
-                            observation[9, agent_pos[0], agent_pos[1]] = agent_state.scaredTimer
+                            observation[8, agent_pos[0], agent_pos[1]] = agent_state.scaredTimer
 
         # 食物位置
-        food_x, food_y = zip(*foodlist.asList())
-        observation[5, food_x, food_y] = 1
+        foods = foodlist.asList()
+        if len(foods) > 0:
+            food_x, food_y = zip(*foods)
+            observation[4, food_x, food_y] = 1
 
         # 能量点位置（己方为1，敌方为-1）
-        capsule_x, capsule_y = zip(*capsulelist)
-        observation[6, capsule_x, capsule_y] = 1
+        if len(capsulelist) > 0:
+            capsule_x, capsule_y = zip(*capsulelist)
+            observation[5, capsule_x, capsule_y] = 1
 
         # 墙的位置
         wall_x, wall_y = zip(*self.walls.asList())
         observation[7, wall_x, wall_y] = 1
 
         # 敌方Pacman的大致距离
-        observation[10, :, :] = distances[other_team[0]]
-        observation[11, :, :] = distances[other_team[1]]
+        observation[9, :, :] = distances[other_team[0]]
+        observation[10, :, :] = distances[other_team[1]]
 
         # numCarrying
-        observation[12, :, :] = self.getAgentState(0).numCarrying
-        observation[13, :, :] = self.getAgentState(1).numCarrying
-        observation[14, :, :] = self.getAgentState(2).numCarrying
-        observation[15, :, :] = self.getAgentState(3).numCarrying
+        observation[11, :, :] = self.getAgentState(0).numCarrying
+        observation[12, :, :] = self.getAgentState(1).numCarrying
+        observation[13, :, :] = self.getAgentState(2).numCarrying
+        observation[14, :, :] = self.getAgentState(3).numCarrying
 
-        observation[16, :, :] = self.getAgentState(0).numReturned
-        observation[17, :, :] = self.getAgentState(1).numReturned
-        observation[18, :, :] = self.getAgentState(2).numReturned
-        observation[19, :, :] = self.getAgentState(3).numReturned
+        observation[15, :, :] = self.getAgentState(0).numReturned
+        observation[16, :, :] = self.getAgentState(1).numReturned
+        observation[17, :, :] = self.getAgentState(2).numReturned
+        observation[18, :, :] = self.getAgentState(3).numReturned
 
-        observation[20, :, :] = self.score
-        observation[21, :, :] = self.current_player
+        observation[19, :, :] = self.score
+        observation[20, :, :] = self.current_player
         return observation
 
     def _foodWallStr(self, hasFood, hasWall):

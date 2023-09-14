@@ -2,7 +2,7 @@ import random
 
 from env.pacman import util
 from env.pacman.defs import Directions, Actions
-from env.pacman.game import PacmanGame
+from env.pacman.pacmangame import PacmanGame
 from env.pacman.util import nearestPoint
 from env.unit_test import distanceCalculator
 
@@ -34,9 +34,9 @@ class TestTeamDummy:
         # comment this out to forgo maze distance computation and use manhattan distances
         self.distancer.getMazeDistances()
 
-        import __main__
-        if '_display' in dir(__main__):
-            self.display = __main__._display
+        # import __main__
+        # if '_display' in dir(__main__):
+        #     self.display = __main__._display
 
         self.boundary = self.getBoundary(env)
 
@@ -97,7 +97,8 @@ class TestTeamDummy:
 
     def getAction(self, gameState: PacmanGame):
         action = self.getAction_inner(gameState)
-        return Directions.toAction(action)
+        # return Directions.toAction(action)
+        return action
     def getAction_inner(self, gameState):
         """
         Calls chooseAction on a grid position, but continues on half positions.
@@ -116,7 +117,7 @@ class TestTeamDummy:
             # We're halfway from one position to the next
             return gameState.getLegalActions(self.index)[0]
         else:
-            return self.chooseAction(gameState)
+            return Directions.toAction(self.chooseAction(gameState))
 
     def chooseAction(self, gameState: PacmanGame):
         """
@@ -144,7 +145,7 @@ class TestTeamDummy:
 
         if path == []:
             actions = gameState.get_legal_actions(self.index)
-            return random.choice(actions)
+            return Directions.toDirection(random.choice(actions))
         else:
             action = path[0]
             dx, dy = Actions.directionToVector(action)

@@ -2,7 +2,7 @@ import random
 import time
 import numpy as np
 from env.pacman import layout
-from env.pacman.game import PacmanGame
+from env.pacman.pacmangame import PacmanGame
 from env.unit_test import captureGraphicsDisplay
 from env.unit_test.baselineTeam import Agent1, Agent2
 
@@ -14,15 +14,18 @@ from env.unit_test.baselineTeam import Agent1, Agent2
 # temp = mazeGenerator.generateMaze(seed)
 # l = layout.Layout(temp.split('\n'))
 # aaa = 0
-# random.seed('cs188')
+
+random.seed('cs188')
 # captureGraphicsDisplay.FRAME_TIME = 0
 # display = captureGraphicsDisplay.PacmanGraphics('./baselineTeam.py',"Red",'./baselineTeam.py',
 #                                                         "Blue", 1, 0, capture=True)
 # import __main__
 # __main__.__dict__['_display'] = display
 
+env = PacmanGame()
+# display.initialize(env)
 
-env = PacmanGame(start_index=0)
+
 
 red_one = Agent1(0)
 blue_one = Agent1(1)
@@ -37,7 +40,7 @@ players = [red_one, blue_one, red_two, blue_two]
 player_index = 0
 
 start_time = time.time()
-# display.initialize(env)
+
 while True:
     player = players[player_index]
     # temp_env = env.copy()

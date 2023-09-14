@@ -6,6 +6,7 @@ import ray
 import torch
 
 import models
+from env.pacman.defs import Directions
 
 
 @ray.remote
@@ -56,6 +57,12 @@ class ReplayBuffer:
         self.total_samples += len(game_history.root_values)
 
         print("self.num_played_games: ", self.num_played_games)
+        unique_actions, counts = numpy.unique(game_history.action_history, return_counts=True)
+        actions_appear = []
+        for i in range(len(unique_actions)):
+            actions_appear.append(Directions.toDirection(unique_actions[i]))
+        action_counts = dict(zip(actions_appear, counts))
+        print("Action counts: ", action_counts)
 
         if self.config.replay_buffer_size < len(self.buffer):
             del_id = self.num_played_games - len(self.buffer)
