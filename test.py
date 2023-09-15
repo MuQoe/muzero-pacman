@@ -1,3 +1,4 @@
+import copy
 import importlib
 import os
 
@@ -42,9 +43,13 @@ checkpoint = {
 game_module = importlib.import_module("games.pacman")
 Game = game_module.Game
 config = game_module.MuZeroConfig()
+
+# model = models.MuZeroNetwork(config).to('cpu')
+# weigths = model.get_weights()
+# checkpoint["weights"] = copy.deepcopy(weigths)
 # muzero = MuZero("pacman")
 # load_model_menu(muzero, "pacman")
-# model = models.MuZeroNetwork(config)
+model = models.MuZeroNetwork(config)
 absolute_path = os.path.abspath("./model.checkpoint")
 checkpoint["weights"] = torch.load(absolute_path)["weights"]
 
