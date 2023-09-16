@@ -222,8 +222,11 @@ def moveCircle(id, pos, r, endpoints=None):
     move_to(id, x0, y0)
 
 def edit(id, *args):
-    _canvas.itemconfigure(id, **dict(args))
-
+    try:
+        _canvas.itemconfigure(id, **dict(args))
+    except Exception as e:
+        # print('edit: itemconfigure error:', e)
+        pass
 def text(pos, color, contents, font='Helvetica', size=12, style='normal', anchor="nw"):
     global _canvas_x, _canvas_y
     x, y = pos

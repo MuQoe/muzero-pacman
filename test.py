@@ -55,4 +55,18 @@ checkpoint["weights"] = torch.load(absolute_path)["weights"]
 
 sp = self_play.SelfPlay(checkpoint, Game, config, 90054)
 while True:
-    sp.play_game(0, 0,True, "expert", 0)
+    game_history = sp.play_game(0, 0,True, "self", 0)
+    muzero_reward = sum(
+        reward
+        for i, reward in enumerate(game_history.reward_history)
+        if game_history.to_play_history[i - 1] % 2
+        == config.muzero_player
+    )
+    opponent_reward = sum(
+        reward
+        for i, reward in enumerate(game_history.reward_history)
+        if game_history.to_play_history[i - 1] % 2
+        != config.muzero_player
+    )
+    print("muzero_reward", muzero_reward)
+    print("opponent_reward", opponent_reward)

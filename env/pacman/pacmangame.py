@@ -15,6 +15,7 @@ class PacmanGame(AbstractPacmanGame):
     def __init__(self, num_stack: int = 6):
         super().__init__(num_stack)
         self.num_stack = num_stack
+        self.prev_carrying = [0, 0, 0, 0]
 
     def step(self, action, agent_index=0):
         self.reset_data()
@@ -44,10 +45,37 @@ class PacmanGame(AbstractPacmanGame):
         # if abs(reward) <= 0.1:
         #     reward -= 0.1
         # if self.check_win():
-        max_score = self.total_food / 2
-        reward += -self.score if self.isOnRedTeam(agent_index) else self.score
+        # max_score = self.total_food / 2
+        # reward -= float(max_score) / float(self.time_left + 1)
+        teams = self.getBlueTeamIndices()
+        others = self.getRedTeamIndices()
+        if self.isOnRedTeam(agent_index):
+            teams = self.getRedTeamIndices()
+            others = self.getBlueTeamIndices()
 
-        reward -= float(max_score) / float(1200 - self.time_left)
+        total_carry = 0
+        dead_penalty = 0
+        for i in teams:
+            total_carry += self.getAgentState(i).numCarrying
+            if self.getAgentState(i).numCarrying == 0:
+                dead_penalty += abs(self.prev_carrying[i] - self.getAgentState(i).numCarrying)
+            self.prev_carrying[i] = self.getAgentState(i).numCarrying
+        reward += total_carry * 0.1
+        reward -= dead_penalty * 0.1
+
+        kill_reward = 0
+        for i in others:
+            if self.getAgentState(i).numCarrying == 0:
+                kill_reward += abs(self.prev_carrying[i] - self.getAgentState(i).numCarrying)
+            self.prev_carrying[i] = self.getAgentState(i).numCarrying
+        reward += kill_reward * 0.1
+
+        # total -7.2
+        increasing_time_penalty = 1e-5 * (1200 - self.time_left)  # This penalty will increase as time progresses.
+        # Time penalty
+        reward -= increasing_time_penalty
+
+        reward += abs(self.scoreChange) * 2
 
         return self.observation(), reward, done
 
