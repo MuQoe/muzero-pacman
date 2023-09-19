@@ -11,23 +11,28 @@ from defaultlayout import test_layout
 from env.pacman import mazeGenerator, layout
 from env.pacman.defs import Directions, AgentState, Configuration
 from env.pacman.util import halfList, nearestPoint, halfGrid
-
+import expandmap
 
 class AbstractPacmanGame(gym.Env):
 
     def __init__(
             self,
             num_stack: int = 6,
+            seeds : int = 0,
     ) -> None:
         """
         :param num_stack: stack last N history frames as input, default is 6.
         """
+        self.layout_seed = seeds
         self.num_stack = num_stack
         self.world = np.zeros((18, 34), dtype=np.int8)
 
-        # seed = random.randint(0, 99999999)
-        # temp = mazeGenerator.generateMaze(seed)
-        world = layout.Layout(test_layout.split('\n'))
+        seed = random.randint(0, 99999999)
+        temp = mazeGenerator.generateMazeWithSize(seed).split('\n')
+        temp = expandmap.expand_board_with_percent(temp,34,18)
+        world = layout.Layout(temp)
+
+
         self.walls = world.walls
         self.food = world.food
         self.capsules = world.capsules
@@ -98,9 +103,11 @@ class AbstractPacmanGame(gym.Env):
 
         self.world = np.zeros((18, 34), dtype=np.int8)
 
-        # seed = random.randint(0, 99999999)
-        # temp = mazeGenerator.generateMaze(seed)
-        world = layout.Layout(test_layout.split('\n'))
+        seed = random.randint(0, 99999999)
+        temp = mazeGenerator.generateMazeWithSize(seed).split('\n')
+        temp = expandmap.expand_board_with_percent(temp, 34, 18)
+        world = layout.Layout(temp)
+        #world = layout.Layout(mazeGenerator.generateMaze(self.layout_seed))
         self.walls = world.walls
         self.food = world.food
         self.capsules = world.capsules
