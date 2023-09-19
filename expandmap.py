@@ -24,20 +24,20 @@ def expand_board_with_percent(board, target_width, target_height):
         expanded_board.append(percent_row)
 
     return expanded_board
-board = [
-    '%%%%%%%%%%%%%%',
-    '%..o.       4%',
-    '%o ..       2%',
-    '%            %',
-    '%            %',
-    '%1       .. o%',
-    '%3       .o..%',
-    '%%%%%%%%%%%%%%'
-]
-
-expanded = expand_board_with_percent(board, 34, 18)
-for row in expanded:
-    print(row)
+# board = [
+#     '%%%%%%%%%%%%%%',
+#     '%..o.       4%',
+#     '%o ..       2%',
+#     '%            %',
+#     '%            %',
+#     '%1       .. o%',
+#     '%3       .o..%',
+#     '%%%%%%%%%%%%%%'
+# ]
+#
+# expanded = expand_board_with_percent(board, 34, 18)
+# for row in expanded:
+#     print(row)
 
 
 

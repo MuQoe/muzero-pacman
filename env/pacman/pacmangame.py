@@ -60,22 +60,23 @@ class PacmanGame(AbstractPacmanGame):
             if self.getAgentState(i).numCarrying == 0:
                 dead_penalty += abs(self.prev_carrying[i] - self.getAgentState(i).numCarrying)
             self.prev_carrying[i] = self.getAgentState(i).numCarrying
-        reward += total_carry * 0.1
-        reward -= dead_penalty * 0.1
+        reward += total_carry * 0.5
+        reward -= dead_penalty * 0.5
 
         kill_reward = 0
         for i in others:
             if self.getAgentState(i).numCarrying == 0:
                 kill_reward += abs(self.prev_carrying[i] - self.getAgentState(i).numCarrying)
             self.prev_carrying[i] = self.getAgentState(i).numCarrying
-        reward += kill_reward * 0.1
+        reward += kill_reward * 0.5
 
         # total -7.2
-        increasing_time_penalty = 1e-5 * (1200 - self.time_left)  # This penalty will increase as time progresses.
+        increasing_time_penalty = 1e-5 * (self.TIME_LIMIT - self.time_left)  # This penalty will increase as time progresses.
         # Time penalty
         reward -= increasing_time_penalty
 
-        reward += abs(self.scoreChange) * 2
+        scoreChange = -self.score if self.isOnRedTeam(agent_index) else self.score
+        reward += scoreChange * 5
 
         return self.observation(), reward, done
 

@@ -55,7 +55,8 @@ class AbstractPacmanGame(gym.Env):
         self.teams = [self.isRed(p) for p in positions]
         self.total_food = self.layout.totalFood
 
-        self.time_left = 1200
+        self.TIME_LIMIT = 400
+        self.time_left = self.TIME_LIMIT
         self.score = 0
         self.scoreChange = 0
         self._foodEaten = None
@@ -130,7 +131,7 @@ class AbstractPacmanGame(gym.Env):
         self.teams = [self.isRed(p) for p in positions]
         self.total_food = self.layout.totalFood
 
-        self.time_left = 1200
+        self.time_left = self.TIME_LIMIT
         self.score = 0
         self.scoreChange = 0
         self._foodEaten = None

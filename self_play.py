@@ -10,7 +10,7 @@ from env.pacman.defs import Directions
 from env.unit_test import captureGraphicsDisplay
 
 
-# @ray.remote
+@ray.remote
 class SelfPlay:
     """
     Class which run in a dedicated thread to play games and save them to the replay-buffer.
