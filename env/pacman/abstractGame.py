@@ -30,6 +30,12 @@ class AbstractPacmanGame(gym.Env):
         seed = random.randint(0, 99999999)
         temp = mazeGenerator.generateMazeWithSize(seed).split('\n')
         temp = expandmap.expand_board_with_percent(temp,34,18)
+
+        # layout_str = "\n".join(temp) + "\n"
+        # # save to file
+        # with open('layout.txt','w') as f:
+        #     f.write(layout_str)
+
         world = layout.Layout(temp)
 
 
