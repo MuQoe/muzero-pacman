@@ -75,7 +75,8 @@ class PacmanGame(AbstractPacmanGame):
         # Time penalty
         reward -= increasing_time_penalty
 
-        scoreChange = -self.score if self.isOnRedTeam(agent_index) else self.score
+        #scoreChange = -self.score if self.isOnRedTeam(agent_index) else self.score
+        scoreChange  = self.scoreChange if self.isOnRedTeam(agent_index) else -self.scoreChange
         reward += scoreChange * 5
 
         return self.observation(), reward, done
